@@ -246,7 +246,9 @@ class RationalApproximationSLSQP(apprentice.RationalApproximation):
         if not self._debug:
             plevel = 1
 
-        from pyutilib.services import TempfileManager
+
+        from pyomo.common.tempfiles import TempfileManager
+        # from pyutilib.services import TempfileManager
         import os
         if not os.path.exists(self._tmpdir):
             os.makedirs(self._tmpdir)
@@ -287,7 +289,8 @@ class RationalApproximationSLSQP(apprentice.RationalApproximation):
         if not self._debug:
             plevel = 1
 
-        from pyutilib.services import TempfileManager
+        # from pyutilib.services import
+        from pyomo.common.tempfiles import TempfileManager
         import os
         if not os.path.exists(self._tmpdir):
             os.makedirs(self._tmpdir)
