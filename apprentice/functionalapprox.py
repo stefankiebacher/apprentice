@@ -1,6 +1,6 @@
 import apprentice
 import numpy as np
-from numba import jit
+from numba import jit, njit, prange
 
 @jit
 def gradientRecurrence(X, struct, jacfac, NNZ, sred):
@@ -57,11 +57,11 @@ def gradientRecurrenceMulti(X, struct, jacfac, NNZ, sred):
 
 
 # This is the explicit triple loop version
-@jit
+@jit(parallel=True)
 def prime(GREC, COEFF, dim, NNZ):
     ret = np.zeros((len(COEFF), dim))
-    for i in range(dim):
-        for j in range(len(COEFF)):
+    for i in prange(dim):
+        for j in prange(len(COEFF)):
             for k in NNZ[i]:
                 ret[j][i] += COEFF[j][k] * GREC[i][k]
     return ret
@@ -108,14 +108,13 @@ def intpower(xs, ee):
     return ret
 
 
-from numba import jit
-@jit
+@jit(parallel=True)
 def jval(rec, pc):
     nitems = len(pc)
     nterms = len(rec)
     ret = np.zeros(nitems)
-    for i in range(nitems):
-        for j in range(nterms):
+    for i in prange(nitems):
+        for j in prange(nterms):
             ret[i] += rec[j] * pc[i][j]
     return ret
 
