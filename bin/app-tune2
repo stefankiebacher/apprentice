@@ -1,5 +1,14 @@
 #!/usr/bin/env python3
 
+"""
+This is the tuning stage of apprentice.
+
+You need a weight file, a file with experimental data and the apprentice approximation file.
+
+%prog WEIGHTS  DATAJSON  APPROXJSON [options]
+"""
+
+
 import apprentice as app
 import numpy as np
 import time
@@ -41,6 +50,9 @@ def mkPlotsMinimum(TO, x0, y0=None, prefix=""):
         pylab.savefig(prefix+"valley_{}.pdf".format(i))
 
 def mkPlotsCorrelation(TO, x0, prefix=""):
+    """
+    Graphical representation of param-param correlations based on inverse hessian
+    """
     H=TO.hessian(x0)
     COV = np.linalg.inv(H)
     COR = np.zeros_like(COV)
@@ -49,15 +61,19 @@ def mkPlotsCorrelation(TO, x0, prefix=""):
         for j in range(nd):
             COR[i,j] = COV[i,j]/np.sqrt(COV[i,i]*COV[j,j])
 
+
+    # make sure to use only the free parameters as axis labels
+    pnames = [TO.pnames[i] for i in TO._freeIdx[0]]
+
     mask =  np.tri(COR.shape[0], k=0)
     A = np.ma.array(COR, mask=mask)
     import pylab
     pylab.clf()
     bb = pylab.imshow(A, vmin=-1, vmax=1, cmap="RdBu")
     locs, labels = pylab.yticks()
-    pylab.yticks([i for i in range(nd)], TO.pnames, rotation=00)
+    pylab.yticks([i for i in range(nd)], pnames, rotation=00)
     locs, labels = pylab.xticks()
-    pylab.xticks([i for i in range(nd)], TO.pnames, rotation=90)
+    pylab.xticks([i for i in range(nd)], pnames, rotation=90)
     cbar = pylab.colorbar(bb, extend='both')
 
     pylab.tight_layout()
@@ -128,7 +144,11 @@ try:
 except ImportError:
     pass
 
-mkPlotsCorrelation(GOF, res.x, opts.OUTDIR+"/{}_".format(outcommon))
+
+# Number of free parameters
+nfree = len(GOF._freeIdx[0])
+# Robustness --- only plot correlations if there are at least 2 free parameters
+if nfree>1: mkPlotsCorrelation(GOF, res.x, opts.OUTDIR+"/{}_".format(outcommon))
 GOF.writeResult(res.x, os.path.join(opts.OUTDIR, "minimum_{}.txt".format(outcommon)), meta=meta)
 if opts.PLOTVALLEY:
     plotout = os.path.join(opts.OUTDIR, "valleys_{}".format(outcommon))
