@@ -175,7 +175,10 @@ class RationalApproximationSLSQP(apprentice.RationalApproximation):
 
     def restartRobO(self, x0, coeffs, threshold, solver):
         ret = minimize(self.robustObj, x0, bounds=self.box, args = (coeffs,), method = solver, options={'maxiter': 1000,'ftol': 1e-4, 'disp': False})
-        optstatus = {'message':ret.get('message').decode(), 'status':ret.get('status'), 'noOfIterations':ret.get('nit'), 'time':0}
+        if isinstance(ret.get('message'), str):
+            optstatus = {'message':ret.get('message'), 'status':ret.get('status'), 'noOfIterations':ret.get('nit'), 'time':0}
+        else:
+            optstatus = {'message':ret.get('message').decode(), 'status':ret.get('status'), 'noOfIterations':ret.get('nit'), 'time':0}
         return ret.x, ret.fun, optstatus
 
 
