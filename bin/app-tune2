@@ -78,6 +78,8 @@ op.add_option("-f", dest="FORCE", default=False, action = 'store_true', help="Al
 op.add_option("-p", "--plotvalley", dest="PLOTVALLEY", default=False, action = 'store_true', help="Allow overwriting output directory (default: %default)")
 op.add_option("--tol", dest="TOL", default=1e-6, type=float, help="Tolerance for scipy optimize minimize (default: %default)")
 op.add_option("--no-check", dest="NOCHECK", default=False, action="store_true", help="Don't check for sadlepoints (default: %default)")
+op.add_option("-t","--template", dest="TEMPLATE", default=None, type=str, help="Template to write the tuned parameters to")
+
 opts, args = op.parse_args()
 
 
@@ -138,5 +140,16 @@ if opts.PLOTVALLEY:
 
 import shutil
 shutil.copy(WFILE, os.path.join(opts.OUTDIR, "weights_{}.txt".format(outcommon)))
+
+if(opts.TEMPLATE):
+    from os.path import join
+    with open(opts.TEMPLATE, "r") as f:
+        TEMPLATES = f.read()
+
+    p = dict(zip(GOF.pnames,res.x))
+    txt = TEMPLATES.format(**p)
+    tname = join(opts.OUTDIR, "parameter_{}.yaml".format(outcommon))
+    with open(tname, "w") as tf:
+        tf.write(txt)
 
 print("Output written to directory {}.".format(opts.OUTDIR))
