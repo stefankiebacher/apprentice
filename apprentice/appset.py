@@ -1,5 +1,6 @@
 import apprentice
 import numpy as np
+import tqdm
 
 # https://stackoverflow.com/questions/32808383/formatting-numbers-so-they-align-on-decimal-point
 def dot_aligned(seq):
@@ -570,7 +571,7 @@ class TuningObjective2(object):
         finalres = None
         import time
         t0=time.time()
-        for t in range(nrestart):
+        for t in tqdm.trange(nrestart):
             isSaddle = True
             maxtries=10
             while (isSaddle):
