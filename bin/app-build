@@ -20,9 +20,16 @@ if __name__ == "__main__":
     op.add_option("--pname", dest="PNAME", default="params.dat", help="Name of the params file to be found in each run directory (default: %default)")
     op.add_option("--itslsqp", dest="ITSLSQP", type=int, default=200, help="maxiter for SLSQP (default: %default)")
     op.add_option("--msg", dest="MSGEVERY", default=5, type=int, help="Verbosity of progress (default: %default)")
+    op.add_option("--ndirs", dest="NDIRS", default=None, type=int)
     op.add_option("-t", "--testpoles", dest="TESTPOLES", type=int, default=10, help="Number of multistarts for pole detection (default: %default)")
     op.add_option("--convert", dest="CONVERTINPUT", default=None, help="Option to store input data as hdf, needs argument (default: %default)")
     opts, args = op.parse_args()
+
+    if(not opts.ORDER):
+        print("No polynomial order given, '--order x,y' is a required parameter")
+        print("Run 'app-build --help' for more information")
+        print("Exiting")
+        sys.exit(1)
 
     rank=0
     size=1
@@ -56,7 +63,7 @@ if __name__ == "__main__":
         DATA, binids, pnames, rankIdx, xmin, xmax = app.io.readInputDataH5(args[0], opts.WEIGHTS)
     elif os.path.isdir(args[0]):
         # YODA directory parsing here
-        DATA, binids, pnames, rankIdx, xmin, xmax = app.io.readInputDataYODA(args, opts.PNAME, opts.WEIGHTS, storeAsH5=opts.CONVERTINPUT)
+        DATA, binids, pnames, rankIdx, xmin, xmax = app.io.readInputDataYODA(args, opts.PNAME, opts.WEIGHTS, storeAsH5=opts.CONVERTINPUT, n_dirs=opts.NDIRS)
     else:
         print("{} neither directory nor file, exiting".format(args[0]))
         exit(1)
@@ -83,8 +90,9 @@ if __name__ == "__main__":
                 ttg = tel*(len(DATA)-num)/(num+1)
                 eta = now + ttg
                 eta = datetime.datetime.fromtimestamp(now + ttg)
-                sys.stdout.write("{}[{}] {}/{} (elapsed: {:.1f}s, to go: {:.1f}s, ETA: {})\r".format(80*" " if rank>0 else "", rank, num+1, len(DATA), tel, ttg, eta.strftime('%Y-%m-%d %H:%M:%S')) ,)
-                sys.stdout.flush()
+                print("{} -- {}[{}] {}/{} (elapsed: {:.1f}s, to go: {:.1f}s, ETA: {})\r".format(thisBinId,80*" " if rank>0 else "", rank, num+1, len(DATA), tel, ttg, eta.strftime('%Y-%m-%d %H:%M:%S')))
+                #sys.stdout.write("{}[{}] {}/{} (elapsed: {:.1f}s, to go: {:.1f}s, ETA: {})\r".format(80*" " if rank>0 else "", rank, num+1, len(DATA), tel, ttg, eta.strftime('%Y-%m-%d %H:%M:%S')) ,)
+                #sys.stdout.flush()
         # USE = np.where( (_Y>0) ) if opts.ISLOG else np.where( (_E>=0) )
         # from IPython import embed
         # embed()
