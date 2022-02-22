@@ -49,6 +49,8 @@ def mkPlotsCorrelation(TO, x0, prefix=""):
         for j in range(nd):
             COR[i,j] = COV[i,j]/np.sqrt(COV[i,i]*COV[j,j])
 
+    np.savetxt(prefix+"correlation.txt", COR)
+    np.savetxt(prefix+"correlation_labels.txt",TO.pnames,fmt="%s")
     mask =  np.tri(COR.shape[0], k=0)
     A = np.ma.array(COR, mask=mask)
     import pylab
@@ -59,9 +61,9 @@ def mkPlotsCorrelation(TO, x0, prefix=""):
     locs, labels = pylab.xticks()
     pylab.xticks([i for i in range(nd)], TO.pnames, rotation=90)
     cbar = pylab.colorbar(bb, extend='both')
-
     pylab.tight_layout()
     pylab.savefig(prefix+"corr.pdf")
+
 
 import optparse, os, sys
 op = optparse.OptionParser(usage=__doc__)
