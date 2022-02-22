@@ -83,6 +83,9 @@ def readInputDataYODA(dirnames, parFileName="params.dat", wfile=None, storeAsH5=
     if rank==0:
         INDIRSLIST = [glob.glob(os.path.join(a, "*")) for a in dirnames]
         indirs     = [item for sublist in INDIRSLIST for item in sublist]
+
+    if n_dirs:
+        indirs = indirs[:n_dirs]
     indirs = comm.bcast(indirs, root=0)
 
     rankDirs = app.tools.chunkIt(indirs, size) if rank==0 else None

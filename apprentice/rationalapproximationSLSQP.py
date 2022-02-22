@@ -87,10 +87,11 @@ class RationalApproximationSLSQP(apprentice.RationalApproximation):
             self._ipo[i][0] = self.recurrence(self._X[i,:],self._struct_p)
             self._ipo[i][1] = self.recurrence(self._X[i,:],self._struct_q)
 
-    def scipyfit(self, coeffs0, cons, ftol=1e-9, iprint=2):
+    def scipyfit(self, coeffs0, cons, ftol=1e-9, iprint=1):
         start = timer()
         ipop = np.array([self._ipo[i][0] for i in range(self.trainingsize)])
         ipoq = np.array([self._ipo[i][1] for i in range(self.trainingsize)])
+
         ret = minimize(fast_leastSqObj, coeffs0 , args=(self.trainingsize, ipop, ipoq, self.M, self.N, self._Y),
                 jac=fast_jac, method = 'SLSQP', constraints=cons,
                 options={'maxiter': self._slsqp_iter, 'ftol': self._ftol, 'disp': self._debug, 'iprint': iprint})
@@ -111,8 +112,11 @@ class RationalApproximationSLSQP(apprentice.RationalApproximation):
 
         self._iterationinfo = []
         for iter in range(1, maxIterations+1):
+
             data = {}
             coeffs, leastSq, optstatus = self.scipyfit(coeffs0, cons, ftol=self._ftol)
+            if(iter > 2):
+                print(iter, optstatus.get("message"), optstatus.get("status"))
             # This is a bit brutal trial and error,
             # if the starting point was not good, we just try again with a random
             # vector, otherwise coeffs is always the same and this loop does nothing
