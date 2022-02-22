@@ -19,7 +19,7 @@ def timeit(method):
 
 from sklearn.base import BaseEstimator, RegressorMixin
 class RationalApproximation(BaseEstimator, RegressorMixin):
-    def __init__(self, X=None, Y=None, order=(2,1), fname=None, initDict=None, strategy=1, scale_min=-1, scale_max=1, pnames=None, set_structures=True):
+    def __init__(self, X=None, Y=None, order=(2,1), fname=None, debug=False, initDict=None, strategy=1, scale_min=-1, scale_max=1, pnames=None, set_structures=True):
         """
         Multivariate rational approximation f(x)_mn =  g(x)_m/h(x)_n
 
