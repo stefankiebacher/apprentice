@@ -72,7 +72,7 @@ def readH5(fname, idx=None, xfield="params", yfield1="values", yfield2="errors")
     f.close()
     return ret
 
-def readInputDataYODA(dirnames, parFileName="params.dat", wfile=None, storeAsH5=None, comm = MPI.COMM_WORLD):
+def readInputDataYODA(dirnames, parFileName="params.dat", wfile=None, storeAsH5=None, comm = MPI.COMM_WORLD, n_dirs=None):
     import apprentice as app
     import numpy as np
     import yoda, glob, os
@@ -85,7 +85,8 @@ def readInputDataYODA(dirnames, parFileName="params.dat", wfile=None, storeAsH5=
         indirs     = [item for sublist in INDIRSLIST for item in sublist]
 
     if n_dirs:
-        indirs = indirs[:n_dirs]
+        indirs = np.random.choice(indirs,size=n_dirs,replace=False)
+
     indirs = comm.bcast(indirs, root=0)
 
     rankDirs = app.tools.chunkIt(indirs, size) if rank==0 else None
@@ -424,11 +425,17 @@ def readExpData(fin, binids):
     if os.path.isdir(fin):
         bindict = yodaDir2Dict(fin)
     else:
-         with open(fin) as f:
-             bindict = json.load(f)
-    Y = np.array([bindict[b][0] for b in binids])
-    E = np.array([bindict[b][1] for b in binids])
-    return dict([(b, (y, e)) for b, y, e in zip(binids, Y, E)])
+        with open(fin) as f:
+            bindict = json.load(f)
+
+
+    valid_binids = [b for b in binids if bindict.get(b)]
+    invalid_binids = [i for i,b in enumerate(binids) if not bindict.get(b)]
+
+    # potentially contains None's
+    Y = np.array([bindict.get(b)[0] for b in valid_binids if bindict.get(b)])
+    E = np.array([bindict.get(b)[1] for b in valid_binids if bindict.get(b)])
+    return invalid_binids, dict([(b, (y, e)) for b, y, e in zip(valid_binids, Y, E)])
 
 
 def readTuneResult(fname):

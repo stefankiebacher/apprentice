@@ -346,14 +346,17 @@ class TuningObjective2(object):
         if sum(weights)==0:
             raise Exception("No observables selected. Check weight file and if it is compatible with experimental data supplied.")
         nonzero = np.where(weights>0)
-
         # Filter here to use only certain bins/histos
-        dd = apprentice.io.readExpData(f_data, [str(b) for b in AS._binids[nonzero]])
+        invalid_binids, dd = apprentice.io.readExpData(f_data, [str(b) for b in AS._binids[nonzero]])
+        for id in invalid_binids:
+            weights[nonzero[0][id]] = 0
+        nonzero = np.where(weights>0)
+
         Y = np.array([dd[b][0] for b in AS._binids[nonzero]], dtype=np.float64)
         E = np.array([dd[b][1] for b in AS._binids[nonzero]], dtype=np.float64)
-
         # Filter for wanted bins here and get rid of division by zero in case of 0 error which is undefined behaviour
         good = []
+        self._debug = True
         for num, bid in enumerate(AS._binids[nonzero]):
             if E[num] > 0:
                 _num = np.where(AS._binids==bid)[0][0]
@@ -361,6 +364,7 @@ class TuningObjective2(object):
                     if self._debug: print("Warning, dropping bin with id {} to guarantee caching works".format(bid))
                     continue
                 if not AS._RA[_num].wraps(Y[num]):
+                    print(AS._RA[_num].vmin,AS._RA[_num].vmax,Y[num])
                     if self._debug: print("Warning, dropping bin with id {} as it is not wrapping the data".format(bid))
                     continue
                 else:

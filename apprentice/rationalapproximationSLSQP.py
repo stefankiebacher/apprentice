@@ -92,9 +92,10 @@ class RationalApproximationSLSQP(apprentice.RationalApproximation):
         ipop = np.array([self._ipo[i][0] for i in range(self.trainingsize)])
         ipoq = np.array([self._ipo[i][1] for i in range(self.trainingsize)])
 
+        #print("starting new minimize")
         ret = minimize(fast_leastSqObj, coeffs0 , args=(self.trainingsize, ipop, ipoq, self.M, self.N, self._Y),
                 jac=fast_jac, method = 'SLSQP', constraints=cons,
-                options={'maxiter': self._slsqp_iter, 'ftol': self._ftol, 'disp': self._debug, 'iprint': iprint})
+                options={'maxiter': self._slsqp_iter, 'ftol': self._ftol, 'disp': False, 'iprint': iprint})
         end = timer()
         optstatus = {'message':ret.get('message'),'status':ret.get('status'),'noOfIterations':ret.get('nit'),'time':end-start}
         return ret.get('x'), ret.get('fun'), optstatus
@@ -123,10 +124,13 @@ class RationalApproximationSLSQP(apprentice.RationalApproximation):
             # but waste time
             if optstatus['status'] not in [0,9]:
                 fixme=True
+                counter = 0
                 while fixme:
+                    print(f"iter = ({iter},{counter}), fixme")
                     coeffs0 = np.random.random(coeffs0.shape)
                     coeffs, leastSq, optstatus = self.scipyfit(coeffs0, cons)
-                    if optstatus['status']!=0:
+                    counter +=1 
+                    if optstatus['status']==0:
                         fixme=False
 
             data['pcoeff'] = coeffs[0:self.M].tolist()
