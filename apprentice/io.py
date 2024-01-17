@@ -283,6 +283,9 @@ def read_rundata(dirs, pfname="params.dat", verbosity=1):
     re_pfname = re.compile(pfname) if pfname else None
     numruns = len(dirs)
     for num, d in enumerate(sorted(dirs)):
+        if not os.path.isdir(d):
+            print(f"NOTE: skipping {d} as it is not a directory")
+            continue
         pct = 100*(num+1)/float(numruns)
         if (num+1)%100 == 0: print("Reading run '%s' data: %d/%d = %2.0f%%" % (d, num+1, numruns, pct))
         files = glob.glob(os.path.join(d, "*"))
