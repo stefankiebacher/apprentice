@@ -435,8 +435,13 @@ class TuningObjective2(object):
             err2 = self._EAS.vals(x, sel=sel)**2
         else:
             err2=np.zeros_like(vals)
-        if unbiased: return apprentice.tools.fast_chi(np.ones(len(vals)), self._Y[sel] - vals, 1./(err2 + 1./self._E2[sel]))
-        else:        return apprentice.tools.fast_chi(self._W2[sel]     , self._Y[sel] - vals, 1./(err2 + 1./self._E2[sel]))# self._E2[sel])
+        weights = np.ones(len(vals)) if unbiased else self._W2[sel]
+        #  match expression:
+            #  case pattern_1:
+                #  pass
+            #  case pattern_2:
+                #  pass
+        return apprentice.tools.fast_chi(weights, self._Y[sel] - vals, 1./(err2 + 1./self._E2[sel]))
 
     def gradient(self, _x, sel=slice(None, None, None)):
         x=self.mkPoint(_x)

@@ -56,10 +56,13 @@ def mkPlotsCorrelation(TO, x0, prefix=""):
     import pylab
     pylab.clf()
     bb = pylab.imshow(A, vmin=-1, vmax=1, cmap="RdBu")
-    locs, labels = pylab.yticks()
-    pylab.yticks([i for i in range(nd)], TO.pnames, rotation=00)
-    locs, labels = pylab.xticks()
-    pylab.xticks([i for i in range(nd)], TO.pnames, rotation=90)
+    try:
+        locs, labels = pylab.yticks()
+        pylab.yticks([i for i in range(nd)], TO.pnames, rotation=00)
+        locs, labels = pylab.xticks()
+        pylab.xticks([i for i in range(nd)], TO.pnames, rotation=90)
+    except ValueError as e:
+        print(f"ValueError = {e}")
     cbar = pylab.colorbar(bb, extend='both')
     pylab.tight_layout()
     pylab.savefig(prefix+"corr.pdf")
