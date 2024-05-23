@@ -420,9 +420,11 @@ def readExpData(fin, binids):
     import json, os
     if os.path.isdir(fin):
         bindict = yodaDir2Dict(fin)
+        binids = bindict.key()
     else:
          with open(fin) as f:
              bindict = json.load(f)
+             binids = bindict.key()
     Y = np.array([bindict[b][0] for b in binids])
     E = np.array([bindict[b][1] for b in binids])
     return dict([(b, (y, e)) for b, y, e in zip(binids, Y, E)])

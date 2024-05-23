@@ -18,7 +18,7 @@ NLPproblem.summary
 *.sol
 *.out
 results_p4_q3_ts2x
-
+*.sh
 # PyCharm files
 *.idea
 !LICENSE_SF-19-096_apprentice_GPL_3.0.pdf
