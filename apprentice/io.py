@@ -278,6 +278,8 @@ def read_rundata(dirs, pfname="params.dat", verbosity=1):
     re_pfname = re.compile(pfname) if pfname else None
     numruns = len(dirs)
     for num, d in enumerate(sorted(dirs)):
+        if not os.path.isdir(d):
+            continue
         pct = 100*(num+1)/float(numruns)
         if (num+1)%100 == 0: print("Reading run '%s' data: %d/%d = %2.0f%%" % (d, num+1, numruns, pct))
         files = glob.glob(os.path.join(d, "*"))
@@ -420,11 +422,11 @@ def readExpData(fin, binids):
     import json, os
     if os.path.isdir(fin):
         bindict = yodaDir2Dict(fin)
-        binids = bindict.key()
+        binids = bindict.keys()
     else:
          with open(fin) as f:
              bindict = json.load(f)
-             binids = bindict.key()
+             binids = bindict.keys()
     Y = np.array([bindict[b][0] for b in binids])
     E = np.array([bindict[b][1] for b in binids])
     return dict([(b, (y, e)) for b, y, e in zip(binids, Y, E)])
